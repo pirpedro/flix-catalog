@@ -72,26 +72,30 @@ class GenreTest extends TestCase
     public function testDelete(){
         $genre = factory(Genre::class)->create();
         $genre->delete();
-        $categories = genre::all();
-        $this->assertCount(0, $categories);
+        $this->assertNull(Genre::find($genre->id));
+            
+        $genre->restore();
+        $this->assertNotNull(Genre::find($genre->id));
+      
     }
 
-    public function testUuid(){
-        $stringUuid = '253e0f90-8842-4731-91dd-0191816e6a28';
-        $uuid = Uuid::fromString($stringUuid);
+    // public function testUuid(){
+    //     $stringUuid = '253e0f90-8842-4731-91dd-0191816e6a28';
+    //     $uuid = Uuid::fromString($stringUuid);
 
-        $factoryMock = Mockery::mock(UuidFactory::class . '[uuid4]', [
-            'uuid4' => $uuid
-        ]);
+    //     $factoryMock = Mockery::mock(UuidFactory::class . '[uuid4]', [
+    //         'uuid4' => $uuid
+    //     ]);
 
-        Uuid::setFactory($factoryMock);
-        $genre = factory(Genre::class)->create();
-        $this->assertEquals($stringUuid, $genre->id);
+    //     Uuid::setFactory($factoryMock);
+    //     $genre = factory(Genre::class)->create();
+    //     $this->assertEquals($stringUuid, $genre->id);
 
-    }
+    // }
 
     public function testUuidFormat(){
         $genre = factory(Genre::class)->create();
+        $this->assertEquals(36, strlen($genre->id));
         $this->assertRegExp('/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i', $genre->id);
     }
 }

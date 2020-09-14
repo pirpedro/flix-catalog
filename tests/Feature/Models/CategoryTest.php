@@ -88,25 +88,28 @@ class CategoryTest extends TestCase
     public function testDelete(){
         $category = factory(Category::class)->create();
         $category->delete();
-        $categories = Category::all();
-        $this->assertCount(0, $categories);
+        $this->assertNull(Category::find($category->id));
+        
+        $category->restore();
+        $this->assertNotNull(Category::find($category->id));
     }
 
-    public function testUuid(){
-        $stringUuid = '253e0f90-8842-4731-91dd-0191816e6a28';
-        $uuid = Uuid::fromString($stringUuid);
+    // public function testUuid(){
+    //     $stringUuid = '253e0f90-8842-4731-91dd-0191816e6a28';
+    //     $uuid = Uuid::fromString($stringUuid);
 
-        $factoryMock = Mockery::mock(UuidFactory::class . '[uuid4]', [
-            'uuid4' => $uuid
-        ]);
+    //     $factoryMock = Mockery::mock(UuidFactory::class . '[uuid4]', [
+    //         'uuid4' => $uuid
+    //     ]);
 
-        Uuid::setFactory($factoryMock);
-        $category = factory(Category::class)->create();
-        $this->assertEquals($stringUuid, $category->id);
-    }
+    //     Uuid::setFactory($factoryMock);
+    //     $category = factory(Category::class)->create();
+    //     $this->assertEquals($stringUuid, $category->id);
+    // }
 
     public function testUuidFormat(){
         $category = factory(Category::class)->create();
+        $this->assertEquals(36, strlen($category->id));
         $this->assertRegExp('/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i', $category->id);
     }
 }
