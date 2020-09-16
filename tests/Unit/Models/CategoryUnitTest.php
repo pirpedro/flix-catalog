@@ -7,14 +7,10 @@ use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
-class CategoryTest extends TestCase
+class CategoryUnitTest extends TestCase
 {
 
     private $category;
-
-    public static function setUpBeforeClass(): void{
-        parent::setUpBeforeClass();
-    }
 
     protected function setUp(): void {
         parent::setUp();
