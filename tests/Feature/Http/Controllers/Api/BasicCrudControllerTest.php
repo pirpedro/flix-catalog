@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Mockery;
+use Mockery\LegacyMockInterface;
 use ReflectionClass;
 use Tests\Stubs\Controllers\CategoryControllerStub;
 use Tests\Stubs\Models\CategoryStub;
@@ -91,6 +92,7 @@ class BasicCrudController extends TestCase
 
     public function testUpdate(){
         $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
+        /** @var LegacyMockInterface $request */
         $request = Mockery::mock(Request::class);
         $request->shouldReceive('all')
                 ->once()

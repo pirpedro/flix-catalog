@@ -32,4 +32,12 @@ class Video extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+
+    public function categories(){
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function genres(){
+        return $this->belongsToMany(Genre::class);
+    }
 }

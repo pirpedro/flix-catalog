@@ -38,6 +38,7 @@ trait TestSaves
   }
 
   private function assertInDatabase(TestResponse $response, array $testDatabase): void{
+    
     $model = $this->model();
     $table = (new $model)->getTable();
     $this->assertDatabaseHas($table, $testDatabase + ['id' => $response->json('id')]);
