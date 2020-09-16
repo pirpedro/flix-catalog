@@ -48,7 +48,6 @@ class BasicCrudController extends TestCase
 
     public function testStore(){
         $request = Mockery::mock(Request::class);
-        $request = Mockery::mock(Request::class);
         $request->shouldReceive('all')
                 ->once()
                 ->andReturn(['name' => 'test_name', 'description' => 'test_description']);
@@ -81,6 +80,35 @@ class BasicCrudController extends TestCase
 
         $result = $reflectionMethod->invokeArgs($this->controller,[0]);
         $this->assertInstanceOf(CategoryStub::class, $result);
+
+    }
+
+    public function testShow(){
+        $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
+        $result = $this->controller->show($category->id);
+        $this->assertEquals($result->toArray(), CategoryStub::find(1)->toArray());
+    }
+
+    public function testUpdate(){
+        $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
+        $request = Mockery::mock(Request::class);
+        $request->shouldReceive('all')
+                ->once()
+                ->andReturn(['name' => 'test_changed', 'description' => 'test_description_changed']);
+        $result = $this->controller->update($request, $category->id);
+        $this->assertEquals(
+            $result->toArray(),
+            CategoryStub::find(1)->toArray(),
+            
+        );
+    }
+
+    public function testDestroy(){
+        $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description']);
+        $response = $this->controller->destroy($category->id);
+        $this->createTestResponse($response)
+            ->assertStatus(204);
+        $this->assertCount(0, CategoryStub::all());
 
     }
 }
