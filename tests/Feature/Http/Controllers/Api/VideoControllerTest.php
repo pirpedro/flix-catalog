@@ -202,6 +202,7 @@ class VideoControllerTest extends TestCase
 
         /** @var Request $request */
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')->withAnyArgs()->andReturnNull();
         
         /** @var VideoController $controller */
         try {
