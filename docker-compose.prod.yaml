@@ -5,9 +5,8 @@ services:
     app:
         build:
             context: .
-            dockerfile: Dockerfile.prod
+            # dockerfile: Dockerfile.prod
         container_name: app
-        entrypoint: dockerize -wait tcp://db:3306 -timeout 40s
         volumes:
             - .:/var/www
         networks:
