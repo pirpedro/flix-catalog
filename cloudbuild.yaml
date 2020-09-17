@@ -1,7 +1,7 @@
 steps:
 
   - id: "Rodando docker-compose"
-    name: 'cloud-builders-community/docker-compose'
+    name: 'docker/compose'
     args: ['-f', 'docker-compose.prod.yaml', 'up', '-d']
 
   - id: "Chown in /var/www"
