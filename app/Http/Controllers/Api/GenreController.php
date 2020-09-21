@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GenreResource;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class GenreController extends BasicCrudController
     private $rules =[
         'name' => 'required|max:255',
         'is_active' => 'boolean',
-        'categories_id' => 'required|array|exists:categories,id',
+        'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
     ];
 
     public function store(Request $request){
@@ -23,6 +24,8 @@ class GenreController extends BasicCrudController
             return $obj;
         });
         $obj->refresh();
+        // $resource = $this->resource();
+        // return new $resource($obj);
         return $obj;
     }
 
@@ -33,6 +36,8 @@ class GenreController extends BasicCrudController
         return \DB::transaction(function() use($request, $validatedData, $self, $obj) {
             $obj->update($validatedData);
             $self->handleRelations($obj, $request);
+            // $resource = $self->resource();
+            // return new $resource($obj);
             return $obj;
         });
           
@@ -52,6 +57,16 @@ class GenreController extends BasicCrudController
 
     protected function rulesUpdate(){
         return $this->rules;
+    }
+
+    protected function resource()
+    {
+        return GenreResource::class;
+    }
+
+    protected function resourceCollection()
+    {
+        return $this->resource();
     }
 
     

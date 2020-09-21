@@ -5,7 +5,7 @@ namespace App\Rules;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Collection;
 
-class GenreHasCategoryRule implements Rule
+class GenresHasCategoriesRule implements Rule
 {
     
     private  $categoriesId;
@@ -64,6 +64,6 @@ class GenreHasCategoryRule implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return \Lang::get('validation.genres_has_categories');
     }
 }
