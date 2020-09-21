@@ -1,9 +1,11 @@
-version: '3'
+version: '3.7'
 
 services:
 
     app:
-        build: .
+        build:
+            context: .
+            target: dev
         container_name: micro-videos-app
         entrypoint: dockerize -wait tcp://db:3306 -timeout 40s ./.docker/entrypoint.sh
         environment:
