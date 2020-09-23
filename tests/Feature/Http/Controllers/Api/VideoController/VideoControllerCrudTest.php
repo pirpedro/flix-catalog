@@ -1,57 +1,25 @@
 <?php
 
-namespace Tests\Feature\Http\Controllers\Api;
+namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
-use App\Http\Controllers\Api\VideoController;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Http\Request;
-use Mockery;
-use Mockery\LegacyMockInterface;
-use Tests\Exceptions\TestException;
-use Tests\TestCase;
+use Illuminate\Http\UploadedFile;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
 
-class VideoControllerTest extends TestCase
+class VideoControllerTest extends BaseVideoControllerTestCase
 {
     
-    use DatabaseMigrations, TestValidations, TestSaves;
+    use TestValidations, TestSaves;
     
-    private $video;
-    private $sendData;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->video = factory(Video::class)->create([
-            'opened' => false
-        ]);
-        $this->sendData = [
-            'title' => 'title',
-            'description' => 'description',
-            'year_launched' => 2010,
-            'rating' => Video::RATING_LIST[0],
-            'duration' => 90,
-        ];
-    }
-
     public function testIndex()
     {
         $response = $this->get(route('videos.index'));
 
         $response->assertStatus(200)
                  ->assertJson([$this->video->toArray()]);
-    }
-
-    public function testShow()
-    {
-        $response = $this->json('GET', route('videos.show', ['video' => $this->video->id]));
-
-        $response->assertStatus(200)
-                 ->assertJson($this->video->toArray());
     }
 
     public function testInvalidationRequired(){
@@ -153,7 +121,7 @@ class VideoControllerTest extends TestCase
         $this->assertInvalidationInUpdateAction($data, 'exists');
     }
 
-    public function testSave(){
+    public function testSaveWithoutFiles(){
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
         $genre->categories()->sync($category->id);
@@ -232,6 +200,33 @@ class VideoControllerTest extends TestCase
             'genre_id' => $genreId,
             'video_id' => $videoId,
         ]);
+    }
+
+    public function testShow()
+    {
+        $response = $this->json('GET', route('videos.show', ['video' => $this->video->id]));
+
+        $response->assertStatus(200)
+                 ->assertJson($this->video->toArray());
+    }
+
+    public function testDestroy(){
+        $response = $this->json('DELETE', route('videos.destroy', ['video' => $this->video->id]));
+        $response->assertStatus(204);
+        $this->assertNull(Video::find($this->video->id));
+        $this->assertNotNull(Video::withTrashed()->find($this->video->id));
+    }
+
+    protected function routeStore(){
+        return route('videos.store');
+    }
+
+    protected function routeUpdate(){
+        return route('videos.update', ['video' => $this->video->id]);
+    }
+
+    protected function model(){
+        return Video::class;
     }
 
     // public function testSyncCategories(){
@@ -388,22 +383,4 @@ class VideoControllerTest extends TestCase
     //     $this->assertTrue($hasError);
     // }
 
-    public function testDestroy(){
-        $response = $this->json('DELETE', route('videos.destroy', ['video' => $this->video->id]));
-        $response->assertStatus(204);
-        $this->assertNull(Video::find($this->video->id));
-        $this->assertNotNull(Video::withTrashed()->find($this->video->id));
-    }
-
-    protected function routeStore(){
-        return route('videos.store');
-    }
-
-    protected function routeUpdate(){
-        return route('videos.update', ['video' => $this->video->id]);
-    }
-
-    protected function model(){
-        return Video::class;
-    }
 }

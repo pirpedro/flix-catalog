@@ -8,17 +8,17 @@ use Tests\Stubs\Models\UploadFileStub;
 
 class UploadFilesUnitTest extends TestCase
 {
-    private $object;
+    private $obj;
 
     protected function setUp(): void {
         parent::setUp();
-        $this->object = new UploadFileStub();
+        $this->obj = new UploadFileStub();
     }
 
     public function testUploadFile(){
         \Storage::fake();
         $file = UploadedFile::fake()->create('video.mp4');
-        $this->object->uploadFile($file);
+        $this->obj->uploadFile($file);
         \Storage::assertExists("1/{$file->hashName()}");
     }
 
@@ -26,7 +26,7 @@ class UploadFilesUnitTest extends TestCase
         \Storage::fake();
         $file1 = UploadedFile::fake()->create('video1.mp4');
         $file2 = UploadedFile::fake()->create('video2.mp4');
-        $this->object->uploadFiles([$file1, $file2]);
+        $this->obj->uploadFiles([$file1, $file2]);
         \Storage::assertExists("1/{$file1->hashName()}");
         \Storage::assertExists("1/{$file2->hashName()}");
     }
@@ -34,14 +34,14 @@ class UploadFilesUnitTest extends TestCase
     public function testDeleteFile(){
         \Storage::fake();
         $file = UploadedFile::fake()->create('video.mp4');
-        $this->object->uploadFile($file);
+        $this->obj->uploadFile($file);
         $fileName = $file->hashName();
-        $this->object->deleteFile($fileName);
+        $this->obj->deleteFile($fileName);
         \Storage::assertMissing("1/{$fileName}");
 
         $file = UploadedFile::fake()->create('video.mp4');
-        $this->object->uploadFile($file);
-        $this->object->deleteFile($file);
+        $this->obj->uploadFile($file);
+        $this->obj->deleteFile($file);
         \Storage::assertMissing("1/{$file->hashName()}");
     }
 
@@ -49,11 +49,25 @@ class UploadFilesUnitTest extends TestCase
         \Storage::fake();
         $file1 = UploadedFile::fake()->create('video1.mp4');
         $file2 = UploadedFile::fake()->create('video2.mp4');
-        $this->object->uploadFiles([$file1, $file2]);
-        $this->object->deleteFiles([$file1->hashName(), $file2]);
+        $this->obj->uploadFiles([$file1, $file2]);
+        $this->obj->deleteFiles([$file1->hashName(), $file2]);
 
         \Storage::assertMissing("1/{$file1->hashName()}");
         \Storage::assertMissing("1/{$file2->hashName()}");
+    }
+
+    public function testDeleteOldFiles(){
+        \Storage::fake();
+        $file1 = UploadedFile::fake()->create('video1.mp4')->size(1);
+        $file2 = UploadedFile::fake()->create('video2.mp4')->size(1);
+        $this->obj->uploadFiles([$file1, $file2]);
+        $this->obj->deleteOldFiles();
+        $this->assertCount(2, \Storage::allFiles());
+
+        $this->obj->oldFiles = [$file1->hashName()];
+        $this->obj->deleteOldFiles();
+        \Storage::assertMissing("1/{$file1->hashName()}");
+        \Storage::assertExists("1/{$file2->hashName()}");
     }
 
     public function testExtractFiles(){
