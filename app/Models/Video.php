@@ -111,7 +111,7 @@ class Video extends Model
         return $this->thumb_file ? $this->getFileUrl($this->thumb_file) : null;
     }
 
-    public function getTBannerFileUrlAttribute(){
+    public function getBannerFileUrlAttribute(){
         return $this->banner_file ? $this->getFileUrl($this->banner_file) : null;
     }
 

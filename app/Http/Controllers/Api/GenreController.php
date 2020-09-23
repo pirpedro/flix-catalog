@@ -24,9 +24,8 @@ class GenreController extends BasicCrudController
             return $obj;
         });
         $obj->refresh();
-        // $resource = $this->resource();
-        // return new $resource($obj);
-        return $obj;
+        $resource = $this->resource();
+        return new $resource($obj);
     }
 
     public function update(Request $request, $id){
@@ -36,11 +35,10 @@ class GenreController extends BasicCrudController
         return \DB::transaction(function() use($request, $validatedData, $self, $obj) {
             $obj->update($validatedData);
             $self->handleRelations($obj, $request);
-            // $resource = $self->resource();
-            // return new $resource($obj);
-            return $obj;
+            $resource = $self->resource();
+            return new $resource($obj);
+            
         });
-          
     }
 
     protected function handleRelations($genre, Request $request){

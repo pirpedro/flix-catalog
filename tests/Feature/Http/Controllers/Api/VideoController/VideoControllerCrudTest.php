@@ -2,25 +2,74 @@
 
 namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
+use App\Http\Resources\VideoResource;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Tests\Traits\TestResources;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
 
 class VideoControllerTest extends BaseVideoControllerTestCase
 {
     
-    use TestValidations, TestSaves;
+    use TestValidations, TestSaves, TestResources;
+
+    private $fieldsSerialized = [
+        'id',
+        'title',
+        'description',
+        'year_launched',
+        'rating',
+        'duration',
+        'opened',
+        'thumb_file_url',
+        'banner_file_url',
+        'trailer_file_url',
+        'video_file_url',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+        'categories' => [
+            '*' => [
+                'id',
+                'name',
+                'description',
+                'is_active',
+                'created_at',
+                'updated_at',
+                'deleted_at'
+            ]
+        ],
+        'genres' => [
+            '*' => [
+                'id',
+                'name',
+                'is_active',
+                'created_at',
+                'updated_at',
+                'deleted_at'
+            ]
+        ],
+    ];
     
     public function testIndex()
     {
         $response = $this->get(route('videos.index'));
 
         $response->assertStatus(200)
-                 ->assertJson([$this->video->toArray()]);
+        ->assertJsonStructure(
+            [
+                'data' => [
+                    '*' => $this->fieldsSerialized
+                ],
+                'meta' => [],
+                'links' => []
+            ]
+        );
+        $this->assertResource($response, VideoResource::collection(collect([$this->video])));
+        $this->assertIfFileUrlExists($this->video, $response);
     }
 
     public function testInvalidationRequired(){
@@ -148,35 +197,23 @@ class VideoControllerTest extends BaseVideoControllerTestCase
                 $value['send_data'], 
                 $value['test_data'] + ['deleted_at' => null]);
             $response->assertJsonStructure([
-                'created_at', 'updated_at'
+                'data' => $this->fieldsSerialized
             ]);
-            $this->assertHasCategory(
-                $response->json('id'),
-                $value['send_data']['categories_id'][0]
+            $this->assertResource($response, 
+                new VideoResource(Video::find($response->json('data.id')))
             );
-
-            $this->assertHasGenre(
-                $response->json('id'),
-                $value['send_data']['genres_id'][0]
-            );
-
 
             $response = $this->assertUpdate(
                 $value['send_data'], 
                 $value['test_data'] + ['deleted_at' => null]);
             $response->assertJsonStructure([
-                'created_at', 'updated_at'
+                'data' => $this->fieldsSerialized
             ]);
 
-            $this->assertHasCategory(
-                $response->json('id'),
-                $value['send_data']['categories_id'][0]
+            $this->assertResource($response, 
+                new VideoResource(Video::find($response->json('data.id')))
             );
 
-            $this->assertHasGenre(
-                $response->json('id'),
-                $value['send_data']['genres_id'][0]
-            );
         }
     }
 
@@ -199,7 +236,11 @@ class VideoControllerTest extends BaseVideoControllerTestCase
         $response = $this->json('GET', route('videos.show', ['video' => $this->video->id]));
 
         $response->assertStatus(200)
-                 ->assertJson($this->video->toArray());
+        ->assertJsonStructure([
+                'data' => $this->fieldsSerialized
+            ]);
+        $this->assertResource($response, new VideoResource(Video::find($response->json('data.id'))));
+        $this->assertIfFileUrlExists($this->video, $response);
     }
 
     public function testDestroy(){
