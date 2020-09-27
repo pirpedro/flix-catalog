@@ -20,6 +20,8 @@ RUN touch /home/www-data/.bashrc | echo "PS1='\w\$ '" >> /home/www-data/.bashrc
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+RUN npm config set cache /var/www/.npm-cache --global
+
 RUN usermod -u 1000 www-data
 
 WORKDIR /var/www

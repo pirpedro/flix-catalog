@@ -3,3 +3,4 @@
 .history/
 .devcontainer/
 .docker/dbdata
+.npm-cache/
