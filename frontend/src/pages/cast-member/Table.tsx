@@ -18,7 +18,6 @@ const columnDefinition: MUIDataTableColumn[] = [
     label: "Tipo",
     options: {
       customBodyRender: (value) => {
-        console.log(value);
         return CastMemberTypeMap[value];
       }
     }
