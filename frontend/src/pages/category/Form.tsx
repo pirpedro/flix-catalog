@@ -19,7 +19,8 @@ const Form = (props: Props) => {
   const classes = useStyles();
   const buttonProps: ButtonProps = {
     className: classes.submit,
-    variant: "outlined",
+    color: 'secondary',
+    variant: "contained",
   }
 
   const {register, handleSubmit, getValues} = useForm({
@@ -54,12 +55,19 @@ const Form = (props: Props) => {
       />
       <Checkbox
         name="is_active"
+        color="primary"
         defaultChecked
         inputRef={register}
       />
       Ativo?
       <Box dir={"rtl"}>
-        <Button {...buttonProps} onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
+        <Button
+          color="primary" 
+          {...buttonProps} 
+          onClick={() => onSubmit(getValues(), null)}
+        >
+          Salvar
+        </Button>
         <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
       </Box>
     </form>

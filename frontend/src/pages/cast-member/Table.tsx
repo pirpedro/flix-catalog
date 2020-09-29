@@ -48,7 +48,7 @@ const Table = (props: Props) => {
   }, []);
   return (
     <MUIDataTable 
-      title="Listagem de categorias"
+      title="Listagem de membros"
       columns={columnDefinition}
       data={data}  
     />
