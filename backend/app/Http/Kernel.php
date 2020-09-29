@@ -15,6 +15,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        HandleCors::class,
         \App\Http\Middleware\TrustProxies::class,
         \App\Http\Middleware\CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
@@ -39,7 +40,6 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            HandleCors::class,
             'throttle:60,1',
             'bindings',
         ],
