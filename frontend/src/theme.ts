@@ -9,6 +9,7 @@ const palette: PaletteOptions = {
     },
     secondary: {
       main: '#4db5ab',
+      dark: '#055a52',
       contrastText: '#fff'
     },
     background: {
@@ -25,7 +26,7 @@ const palette: PaletteOptions = {
 };
 
 const theme = createMuiTheme({
-  palette: palette,
+  palette,
   overrides: {
     MUIDataTable: {
       paper: {
@@ -40,13 +41,13 @@ const theme = createMuiTheme({
       icon: {
         color: (palette!.primary as SimplePaletteColorOptions).main,
         '&:hover, &:active, &:focus' : {
-          color: '#055a52'
+          color: (palette!.secondary as SimplePaletteColorOptions).dark
         }
       },
       iconActive: {
-        color: '#055a52',
+        color: (palette!.secondary as SimplePaletteColorOptions).dark,
         '&:hover, &:active, &:focus' : {
-          color: '#055a52'
+          color: (palette!.secondary as SimplePaletteColorOptions).dark
         }
       }
     },
