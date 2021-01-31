@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
+use App\Models\Traits\UploadFiles;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,7 +18,7 @@ class Video extends Model
     const BANNER_FILE_MAX_SIZE = 1024 * 10; //10MB
     const TRAILER_FILE_MAX_SIZE = 1024 * 1024 * 1; //1GB
     const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 50; //10GB
-    
+
     protected $fillable = [
         'title',
         'description',
@@ -61,7 +61,7 @@ class Video extends Model
             \DB::rollBack();
             throw $e;
         }
-       
+
     }
 
     public function update(array $attributes = [], array $options = []){
@@ -72,7 +72,7 @@ class Video extends Model
             static::handleRelations($this, $attributes);
             if($saved){
                 $this->uploadFiles($files);
-               
+
             }
             \DB::commit();
             if($saved && count($files)){
@@ -94,7 +94,7 @@ class Video extends Model
             $video->genres()->sync($attributes['genres_id']);
         }
     }
-    
+
     public function categories(){
         return $this->belongsToMany(Category::class)->withTrashed();
     }

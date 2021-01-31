@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Page } from '../../components/Page';
 import Form from './Form';
 
-interface ParamTypes{
+export interface ParamTypes{
   id: string;
 }
 

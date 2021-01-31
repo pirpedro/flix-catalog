@@ -1,4 +1,4 @@
-import { Box, Button, ButtonProps, Checkbox, FormControlLabel, makeStyles, TextField, Theme } from '@material-ui/core';
+import { Box, Button, ButtonProps, Checkbox, FormControlLabel, Grid, makeStyles, TextField, Theme } from '@material-ui/core';
 import { useForm } from "react-hook-form";
 import * as React from 'react';
 import categoryHttp from '../../util/http/category-http';
@@ -6,16 +6,10 @@ import { yupResolver } from '@hookform/resolvers'
 import * as yup from '../../util/vendor/yup';
 import { useHistory, useParams } from 'react-router-dom';
 import { ParamTypes } from './PageForm';
-import { AxiosResponse } from 'axios';
 import { useSnackbar } from 'notistack';
-
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    submit: {
-      margin: theme.spacing(1)
-    }
-  }
-});
+import { Category } from '../../util/models';
+import SubmitActions from '../../components/SubmitActions';
+import { DefaultForm } from '../../components/DefaultForm';
 
 const validationSchema = yup.object().shape({
   name: yup.string()
@@ -24,9 +18,8 @@ const validationSchema = yup.object().shape({
           .max(255)
 })
 
-const Form = () => {
+export const Form = () => {
 
-  const classes = useStyles();
   const {
     register,
     handleSubmit,
@@ -34,7 +27,8 @@ const Form = () => {
     errors, 
     reset, 
     watch,
-    setValue
+    setValue,
+    trigger,
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -45,15 +39,8 @@ const Form = () => {
   const snackbar = useSnackbar();
   const history = useHistory();
   const {id} = useParams<ParamTypes>();
-  const [category, setCategory] = React.useState<{id: string} | null>(null);
+  const [category, setCategory] = React.useState<Category | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
-  
-  const buttonProps: ButtonProps = {
-    className: classes.submit,
-    color: 'secondary',
-    variant: "contained",
-    disabled: loading
-  }
 
   React.useEffect(() => {
     register({name: 'is_active'});
@@ -61,22 +48,33 @@ const Form = () => {
 
   React.useEffect(() => {
     if(!id){ return; }
-    setLoading(true);
-    categoryHttp
-      .get(id)
-      .then(({data}) => {
+
+    async function getCategory(){
+      setLoading(true);
+      try {
+        const {data} = await categoryHttp.get(id);
         setCategory(data.data);
         reset(data.data);
-      })
-      .finally(() => setLoading(false));
+      } catch (error) {
+        console.log(error);
+        snackbar.enqueueSnackbar(
+          'Não foi possível carregar as informações.',
+          {variant: 'error'}
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+    getCategory();
   }, []);
 
-  function onSubmit(formData, event){
+  async function onSubmit(formData, event){
     setLoading(true);
-    const http = !category
+    try {
+      const http = !category
       ? categoryHttp.create(formData)
       : categoryHttp.update(category.id, formData);
-    http.then((response: AxiosResponse) => {
+      const {data} = await http;
       snackbar.enqueueSnackbar(
         'Categoria salva com sucesso.',
         {variant: "success"}
@@ -85,73 +83,72 @@ const Form = () => {
         event
             ? (
               id 
-                ? history.replace(`/categories/${response.data.data.id}/edit`)
-                : history.push(`/categories/${response.data.data.id}/edit`)
+                ? history.replace(`/categories/${data.data.id}/edit`)
+                : history.push(`/categories/${data.data.id}/edit`)
             )
             : history.push('/categories')
-      })       
-    })
-        .catch((error) => {
-          console.log(error);
+      }); 
+    } catch (error) {
+      console.log(error);
           snackbar.enqueueSnackbar(
             'Não foi possível salvar a categoria.',
             {variant: "error"}
           );
-        })
-        .finally(() => setLoading(false));
-  }
+    }finally {
+      setLoading(false);
+    }
+   
+  } 
+  
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        name="name"
-        label="Nome"
-        fullWidth
-        variant="outlined"
-        inputRef={register}
-        disabled={loading}
-        error={errors.name !== undefined}
-        helperText={errors.name?.message}
-        InputLabelProps={{shrink: true}}
-      />
-      <TextField
-        name="description"
-        label="Descrição"
-        multiline
-        rows="4"
-        fullWidth
-        variant="outlined"
-        margin="normal"
-        inputRef={register}
-        disabled={loading}
-        InputLabelProps={{shrink: true}}
-      />
-      <FormControlLabel 
-        label="Ativo?"
-        labelPlacement="end"
-        disabled={loading}
-        control={
-          <Checkbox
-            name="is_active"
-            color="primary"
-            onChange={
-              () => {setValue('is_active', !getValues()['is_active'])}
-            }
-            checked={watch('is_active')}
-
+        <DefaultForm GridItemProps={{xs:12, md:6}} onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            name="name"
+            label="Nome"
+            fullWidth
+            variant="outlined"
+            inputRef={register}
+            disabled={loading}
+            error={errors.name !== undefined}
+            helperText={errors.name?.message}
+            InputLabelProps={{shrink: true}}
           />
-        }
-      />
-      <Box dir={"rtl"}>
-        <Button
-          color="primary" 
-          {...buttonProps} 
-          onClick={() => onSubmit(getValues(), null)}
-        >
-          Salvar
-        </Button>
-        <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
-      </Box>
-    </form>
+          <TextField
+            name="description"
+            label="Descrição"
+            multiline
+            rows="4"
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            inputRef={register}
+            disabled={loading}
+            InputLabelProps={{shrink: true}}
+          />
+          <FormControlLabel 
+            label="Ativo?"
+            labelPlacement="end"
+            disabled={loading}
+            control={
+              <Checkbox
+                name="is_active"
+                color="primary"
+                onChange={
+                  () => {setValue('is_active', !getValues()['is_active'])}
+                }
+                checked={watch('is_active')}
+
+              />
+            }
+          />
+          <SubmitActions 
+            disabledButtons={loading}
+            handleSave={() => trigger().then( isValid => {
+                              isValid && onSubmit(getValues, null)
+                            })
+                        }
+          />
+        </DefaultForm>
   );
 };
 

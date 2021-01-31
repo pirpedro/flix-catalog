@@ -42,21 +42,21 @@ const routes : MyRouteProps[] = [
     exact: true
   },
   {
-    name: 'cast-members.list',
+    name: 'cast_members.list',
     label: 'Listar membros de elenco',
     path: '/cast-members',
     component: CastMemberList,
     exact: true
   },
   {
-    name: 'cast-members.create',
+    name: 'cast_members.create',
     label: 'Criar membro',
     path: '/cast-members/create',
     component: CastMemberForm,
     exact: true
   },
   {
-    name: 'cast-members.edit',
+    name: 'cast_members.edit',
     label: 'Editar membro',
     path: '/cast-members/:id/edit',
     component: CastMemberForm,
