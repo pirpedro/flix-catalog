@@ -1,14 +1,15 @@
 // @flow 
-import MUIDataTable,{ MUIDataTableColumn, MUIDataTableOptions, MUIDataTableProps } from 'mui-datatables';
+import MUIDataTable,{ DebounceTableSearch, MUIDataTableColumn, MUIDataTableOptions, MUIDataTableProps } from 'mui-datatables';
 import * as React from 'react';
 import {merge, omit, cloneDeep} from 'lodash';
 import { MuiThemeProvider, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import DebouncedTableSearch from "./DebouncedTableSearch";
 
 export interface TableColumn extends MUIDataTableColumn{
   width?: string
 }
 
-const defaultOptions: MUIDataTableOptions = {
+const makeDefaultOptions = (debouncedSearchTime?: number): MUIDataTableOptions => ({
   print: false,
   download: false,
   textLabels: {
@@ -43,12 +44,25 @@ const defaultOptions: MUIDataTableOptions = {
       delete: "Excluir",
       deleteAria: "Excluir registros selecionados"
     },
-  },    
-}
+  },
+  customSearchRender: (searchText: string, 
+                        handleSearch: any, 
+                        hideSearch: any, 
+                        options: any) => {
+                          return <DebouncedTableSearch
+                            searchText={searchText}
+                            onSearch={handleSearch}
+                            onHide={hideSearch}
+                            options={options}
+                            debounceTime={debouncedSearchTime}
+                          />
+                        }    
+});
 
 export interface TableProps extends MUIDataTableProps {
   columns: TableColumn[];
   loading?: boolean;
+  debouncedSearchTime?:number; 
 }
 const Table : React.FC<TableProps> = (props: TableProps) => {
   const theme = cloneDeep<Theme>(useTheme());
@@ -86,6 +100,8 @@ const Table : React.FC<TableProps> = (props: TableProps) => {
   function getOriginalMuiDataTableProps(){
     return omit(newProps, 'loading')
   }
+
+  const defaultOptions = makeDefaultOptions(props.debouncedSearchTime);
 
   const newProps = merge(
     {options: cloneDeep(defaultOptions)}, 
