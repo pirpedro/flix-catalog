@@ -3,7 +3,7 @@ import { format, parseISO } from "date-fns";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { Category, ListResponse } from '../../util/models';
-import DefaultTable, { makeActionStyles, TableColumn } from '../../components/Table'
+import DefaultTable, { makeActionStyles, TableColumn, MuiDataTableRefComponent } from '../../components/Table'
 import { useSnackbar } from 'notistack';
 import { IconButton, MuiThemeProvider} from '@material-ui/core';
 import {Link} from 'react-router-dom';
@@ -19,18 +19,25 @@ const columnsDefinition: TableColumn[] = [
     width: "30%",
     options: {
       sort: false,
+      filter: false
     }
   },
   {
     name: "name",
     label: "Nome",
     width: "43%",
+    options: {
+      filter: false
+    }
   },
   {
     name: "is_active",
     label: "Ativo?",
     width: "4%",
     options: {
+      filterOptions: {
+        names: ['Sim', 'Não']
+      },
       customBodyRender(value, tableMeta, updateValue){
         return value ? <BadgeYes/>: <BadgeNo/>
       }
@@ -41,6 +48,7 @@ const columnsDefinition: TableColumn[] = [
     label: "Criado em",
     width: "10%",
     options: {
+      filter: false,
       customBodyRender(value, tableMeta, updateValue){
       return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>
       }
@@ -52,6 +60,7 @@ const columnsDefinition: TableColumn[] = [
     label: "Ações",
     width: "13%",
     options: {
+      filter: false,
       sort: false,
       customBodyRender: (value, tableMeta) => {
         return (
@@ -80,6 +89,7 @@ const Table = () => {
   const subscribed = useRef(true);
   const [data, setData] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
   const {
     columns,
     filterManager,
@@ -92,7 +102,8 @@ const Table = () => {
     columns: columnsDefinition,
     debounceTime: debounceTime,
     rowsPerPage: rowsPerPage,
-    rowsPerPageOptions: rowsPerPageOptions
+    rowsPerPageOptions: rowsPerPageOptions,
+    tableRef,
   });
 
   useEffect(() => {
@@ -156,6 +167,7 @@ const Table = () => {
         data={data}
         loading={loading}
         debouncedSearchTime={debounceSearchTime}
+        ref={tableRef}
         options={{
             serverSide: true,
             responsive: "standard",
@@ -167,7 +179,7 @@ const Table = () => {
             customToolbar: () => (
               <FilterResetButton 
                 handleClick={()=> {
-                  dispatch(Creators.setReset())
+                  filterManager.resetFilter()
                 }}
               />
             ),

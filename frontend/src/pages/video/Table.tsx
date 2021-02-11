@@ -1,6 +1,5 @@
 import React,{useState, useEffect, useRef} from 'react';
 import { format, parseISO } from "date-fns";
-import genreHttp from '../../util/http/genre-http';
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from '../../components/Table';
 import { IconButton, MuiThemeProvider } from '@material-ui/core';
 import {Link} from 'react-router-dom';
@@ -9,9 +8,10 @@ import { useSnackbar } from 'notistack';
 import useFilter from '../../hooks/useFilter';
 import categoryHttp from '../../util/http/category-http';
 import * as yup from '../../util/vendor/yup';
-import { Category, Genre, ListResponse } from '../../util/models';
+import { Category, Genre, ListResponse, Video } from '../../util/models';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
+import videoHttp from '../../util/http/video-http';
 
 const columnsDefinition: TableColumn[] = [
   {
@@ -24,21 +24,11 @@ const columnsDefinition: TableColumn[] = [
     }
   },
   {
-    name: "name",
-    label: "Nome",
+    name: "title",
+    label: "Title",
     width: "23%",
     options: {
       filter: false
-    }
-  },
-  {
-    name: "is_active",
-    label: "Ativo?",
-    width:  '4%',
-    options: {
-      customBodyRender(value, tableMeta, updateValue){
-        return value? <BadgeYes/> : <BadgeNo/>; 
-      }
     }
   },
   {
@@ -199,7 +189,7 @@ const Table = () => {
   async function getData(){
     setLoading(true);
     try {
-      const {data} = await genreHttp.list<ListResponse<Genre>>({
+      const {data} = await videoHttp.list<ListResponse<Video>>({
         queryParams: {
           search: filterManager.cleanSearchText(filterState.search),
           page: filterState.pagination.page,
@@ -226,7 +216,7 @@ const Table = () => {
       }
     } catch(error){
       console.error(error);
-      if(genreHttp.isCancelledRequest(error)){
+      if(videoHttp.isCancelledRequest(error)){
         return;
       }
       snackbar.enqueueSnackbar(
@@ -240,7 +230,7 @@ const Table = () => {
   return (
     <MuiThemeProvider theme={makeActionStyles(columnsDefinition.length-1)}>
       <DefaultTable
-        title="Listagem de gêneros"
+        title="Listagem de Vídeos"
         columns={columns}
         data={data}  
         loading={loading}

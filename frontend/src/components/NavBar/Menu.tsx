@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 
 const listRoutes = {
   'dashboard': 'Dashboard',
+  'videos.list': 'Vídeos',
   'categories.list': 'Categorias',
   'cast_members.list': 'Membros de elenco',
   'genres.list': 'Gêneros'

@@ -59,18 +59,17 @@ const makeDefaultOptions = (debouncedSearchTime?: number): MUIDataTableOptions =
                         }    
 });
 
+export interface MuiDataTableRefComponent {
+  changePage:  (page: number) => void;
+  changeRowsPerPage: (rowsPerPage: number) => void;
+}
+
 export interface TableProps extends MUIDataTableProps {
   columns: TableColumn[];
   loading?: boolean;
   debouncedSearchTime?:number; 
 }
-const Table : React.FC<TableProps> = (props: TableProps) => {
-  const theme = cloneDeep<Theme>(useTheme());
-  const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
-
-  function applyResponsive(){
-    newProps.options.responsive = isSmOrDown ? 'standard' : 'vertical';
-  }
+const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>( (props,ref) => {
   
   function extractMuiDAtaTableColumns(columns: TableColumn[]): MUIDataTableColumn[]{
     setColumnsWith(columns);
@@ -97,9 +96,20 @@ const Table : React.FC<TableProps> = (props: TableProps) => {
       : textLabels.body.noMatch
   }
 
-  function getOriginalMuiDataTableProps(){
-    return omit(newProps, 'loading')
+  function applyResponsive(){
+    newProps.options.responsive = isSmOrDown ? 'standard' : 'vertical';
   }
+
+
+  function getOriginalMuiDataTableProps(){
+    return {
+      ...omit(newProps, 'loading'),
+      ref
+    }
+  }
+
+  const theme = cloneDeep<Theme>(useTheme());
+  const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
 
   const defaultOptions = makeDefaultOptions(props.debouncedSearchTime);
 
@@ -115,11 +125,11 @@ const Table : React.FC<TableProps> = (props: TableProps) => {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <MUIDataTable {...originalProps}/>
+      <MUIDataTable {...originalProps} />
     </MuiThemeProvider>
     
   );
-};
+});
 
 export default Table;
 
