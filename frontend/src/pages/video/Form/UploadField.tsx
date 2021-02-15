@@ -13,10 +13,17 @@ interface UploadFieldProps {
   formControlProps? : FormControlProps;
 };
 
+export interface UploadFieldComponent extends React.RefAttributes<InputFileComponent> {
+  clear: () => void
+}
 
-const UploadField = (props: UploadFieldProps) => {
+const UploadField = React.forwardRef<UploadFieldComponent, UploadFieldProps>((props, ref) => {
   const fileRef = React.useRef() as React.MutableRefObject<InputFileComponent>;
   const { accept, label, setValue, disabled, error} = props;
+
+  React.useImperativeHandle(ref, () => ({
+    clear: () => fileRef.current.clear()
+  }));
   return (
     <FormControl 
       error={error !== undefined}
@@ -54,6 +61,6 @@ const UploadField = (props: UploadFieldProps) => {
     />
     </FormControl>
   );
-};
+});
 
 export default UploadField;

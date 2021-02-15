@@ -25,21 +25,32 @@ const columnsDefinition: TableColumn[] = [
   },
   {
     name: "title",
-    label: "Title",
-    width: "23%",
+    label: "Título",
+    width: "20%",
     options: {
       filter: false
     }
   },
   {
+    name: "genres",
+    label: "Gêneros",
+    width: "13%",
+    options: {
+      sort: false,
+      filter: false,
+      customBodyRender(value, tableMeta, updateValue){
+          return (value as any).map((value: any) => value.name).join(', ');
+      }
+    }
+  },
+  {
     name: "categories",
     label: "Categorias",
-    width: "20%",
+    width: "12%",
     options: {
-      filterType: 'multiselect',
-      filterOptions: {
-        names: []
-      },
+      sort:false,
+      filter: false,
+
       customBodyRender(value, tableMeta, updateValue){
           return (value as any).map((category: any) => category.name).join(', ');
       }
@@ -88,9 +99,8 @@ const Table = () => {
   
   const snackbar = useSnackbar();
   const subscribed = useRef(true);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Video[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [categories, setCategories] = useState<Category[]>();
   const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
   const {
     columns,
@@ -106,71 +116,7 @@ const Table = () => {
     rowsPerPage: rowsPerPage,
     rowsPerPageOptions: rowsPerPageOptions,
     tableRef,
-    extraFilter: {
-      createValidationSchema: () => {
-        return yup.object().shape({
-          categories: yup.mixed()
-                  .nullable()
-                  .transform( value => {
-                    return !value || value === '' ? undefined: value.split(',');
-                  })
-                  .default(null)
-        })
-      },
-      formatSearchParams: (debouncedState) => {
-        return debouncedState.extraFilter? {
-          ...(
-            debouncedState.extraFilter.categories &&
-            {categories: debouncedState.extraFilter.categories.join(',')}
-          )
-        } : undefined
-      },
-      getStateFromURL: (queryParams) => {
-        return {
-          type: queryParams.get('categories')
-        }
-      }
-    }
   });
-
-  const indexColumnCategories = columns.findIndex(c => c.name === 'categories');
-  const columnCategories = columns[indexColumnCategories];
-  const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
-  (columnCategories.options as any).filterList = categoriesFilterValue
-    ? categoriesFilterValue
-    : [];
-  const serverSideFilterList = columns.map(column => []);
-  if (categoriesFilterValue) {
-    serverSideFilterList[indexColumnCategories] = categoriesFilterValue;
-  }
-  
-
-  useEffect(() => {
-    let isSubscribed = true;
-    (async () => {
-      try {
-        const {data} = await categoryHttp.list({queryParams: {all: ''}});
-        if(isSubscribed){
-          setCategories(data.data);
-          (columnCategories.options as any).filterOptions.names = data.data.map(category => category.name)
-
-          // setData(data.data);
-        }
-      } catch(error){
-        console.error(error);
-        snackbar.enqueueSnackbar(
-          'Não foi possível carregar as informações',
-          {variant: 'error'}
-        )
-      }
-      
-    })();
-
-    return () => {
-      isSubscribed = false;
-    }
-   
-  }, []);
 
   useEffect(() => {
     subscribed.current = true;
@@ -196,11 +142,6 @@ const Table = () => {
           per_page: filterState.pagination.per_page,
           sort: filterState.order.sort,
           dir: filterState.order.dir,
-          ...(
-            debouncedFilterState.extraFilter &&
-            debouncedFilterState.extraFilter.categories &&
-            {categories: debouncedFilterState.extraFilter.categories.join(',')}
-          )
         }
       });
       if(subscribed.current){

@@ -8,8 +8,9 @@ export interface InputFileProps {
   TextFieldProps?: TextFieldProps;
 };
 
-export interface InputFileComponent {
+export interface InputFileComponent extends React.RefAttributes<InputFileComponent> {
   openWindow: () => void
+  clear: () => void
 }
 
 const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, ref) => {
@@ -45,7 +46,8 @@ const InputFile = React.forwardRef<InputFileComponent, InputFileProps>((props, r
     }
   };
   React.useImperativeHandle(ref, () => ({
-    openWindow: () => fileRef.current.click()
+    openWindow: () => fileRef.current.click(),
+    clear: () => setFileName("")
   }))
 
   return (
