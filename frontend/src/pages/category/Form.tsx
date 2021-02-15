@@ -11,6 +11,7 @@ import { Category } from '../../util/models';
 import SubmitActions from '../../components/SubmitActions';
 import { DefaultForm } from '../../components/DefaultForm';
 import useSnackbarFormError from '../../hooks/useSnackbarFormError';
+import LoadingContext from '../../components/Loading/LoadingContext';
 
 const validationSchema = yup.object().shape({
   name: yup.string()
@@ -43,7 +44,7 @@ export const Form = () => {
   const history = useHistory();
   const {id} = useParams<ParamTypes>();
   const [category, setCategory] = React.useState<Category | null>(null);
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const loading = React.useContext(LoadingContext);
 
   React.useEffect(() => {
     register({name: 'is_active'});
@@ -53,7 +54,6 @@ export const Form = () => {
     if(!id){ return; }
 
     async function getCategory(){
-      setLoading(true);
       try {
         const {data} = await categoryHttp.get(id);
         setCategory(data.data);
@@ -64,15 +64,13 @@ export const Form = () => {
           'Não foi possível carregar as informações.',
           {variant: 'error'}
         );
-      } finally {
-        setLoading(false);
-      }
+      } 
     }
     getCategory();
   }, []);
 
   async function onSubmit(formData, event){
-    setLoading(true);
+   
     try {
       const http = !category
       ? categoryHttp.create(formData)
@@ -97,8 +95,6 @@ export const Form = () => {
             'Não foi possível salvar a categoria.',
             {variant: "error"}
           );
-    }finally {
-      setLoading(false);
     }
    
   } 

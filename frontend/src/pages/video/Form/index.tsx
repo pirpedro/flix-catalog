@@ -115,7 +115,7 @@ export const Form = () => {
   const uploadsRef = React.useRef(
     zipObject(fileFields, fileFields.map(()=> React.createRef()))
   ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent>}>;
- 
+
  React.useEffect(() => {
     [
       'rating',
