@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Builder;
 
 class CategoryController extends BasicCrudController
 {
@@ -34,5 +35,9 @@ class CategoryController extends BasicCrudController
     protected function resource()
     {
         return CategoryResource::class;
+    }
+
+    protected function queryBuilder(): Builder{
+        return parent::queryBuilder();
     }
 }
