@@ -18,7 +18,6 @@ class VideoResource extends JsonResource
             'categories' => CategoryResource::collection($this->categories),
             'genres' => GenreResource::collection($this->genres),
             'cast_members' => CastMemberResource::collection($this->castMembers),
-            // 'cast_members' => CastMemberResource::collection($this->castMembers),
             'thumb_file_url' => $this->thumb_file_url,
             'banner_file_url' => $this->banner_file_url,
             'trailer_file_url' => $this->trailer_file_url,

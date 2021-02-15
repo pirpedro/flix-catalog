@@ -17,6 +17,7 @@ import CategoryField, {CategoryFieldComponent} from './CategoryField';
 import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
+import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -85,7 +86,8 @@ export const Form = () => {
     errors,
     reset,
     watch,
-    trigger
+    trigger,
+    formState
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -96,6 +98,8 @@ export const Form = () => {
       opened: false,
     }
   });
+
+  useSnackbarFormError(formState.submitCount, errors);
   
   const classes = useStyles();
   const snackbar = useSnackbar();
@@ -112,7 +116,7 @@ export const Form = () => {
     zipObject(fileFields, fileFields.map(()=> React.createRef()))
   ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent>}>;
  
-  React.useEffect(() => {
+ React.useEffect(() => {
     [
       'rating',
       'opened',
@@ -132,6 +136,7 @@ export const Form = () => {
       setLoading(true);
       try {
         const {data} = await videoHttp.get(id);
+        console.log(data.data);
         if(isSubscribed){
           setVideo(data.data);
           reset(data.data);

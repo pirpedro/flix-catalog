@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useHistory, useParams } from 'react-router-dom';
 import SubmitActions from '../../components/SubmitActions';
+import useSnackbarFormError from '../../hooks/useSnackbarFormError';
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from "../../util/vendor/yup";
 import { ParamTypes } from './PageForm';
@@ -36,10 +37,13 @@ export const Form = () => {
     setValue,
     reset,
     watch,
-    trigger
+    trigger,
+    formState
   } = useForm({
     resolver: yupResolver(validationSchema)
   });
+  
+  useSnackbarFormError(formState.submitCount, errors);
   
   const classes = useStyles();
   const snackbar = useSnackbar();

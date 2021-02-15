@@ -10,6 +10,7 @@ import { ParamTypes } from './PageForm';
 import { useSnackbar } from 'notistack';
 import { DefaultForm } from '../../components/DefaultForm';
 import SubmitActions from '../../components/SubmitActions';
+import useSnackbarFormError from '../../hooks/useSnackbarFormError';
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -38,11 +39,14 @@ export const Form = () => {
     setValue,
     reset,
     watch,
-    trigger
+    trigger,
+    formState
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {categories_id: []}
   });
+
+  useSnackbarFormError(formState.submitCount, errors);
   
   const classes = useStyles();
   const snackbar = useSnackbar();
