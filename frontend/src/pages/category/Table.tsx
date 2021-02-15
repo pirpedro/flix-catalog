@@ -9,7 +9,6 @@ import { IconButton, MuiThemeProvider} from '@material-ui/core';
 import {Link} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
-import reducer, { INITIAL_STATE, Creators } from '../../store/filter';
 import useFilter from '../../hooks/useFilter';
 
 const columnsDefinition: TableColumn[] = [

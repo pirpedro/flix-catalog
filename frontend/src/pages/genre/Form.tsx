@@ -9,6 +9,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { ParamTypes } from './PageForm';
 import { useSnackbar } from 'notistack';
 import { DefaultForm } from '../../components/DefaultForm';
+import SubmitActions from '../../components/SubmitActions';
 
 const useStyles = makeStyles((theme: Theme) => {
   return {
@@ -36,7 +37,8 @@ export const Form = () => {
     errors,
     setValue,
     reset,
-    watch
+    watch,
+    trigger
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {categories_id: []}
@@ -110,7 +112,7 @@ export const Form = () => {
     setLoading(true);
     try {
       const http = !genre
-      ? genreHttp.create({})
+      ? genreHttp.create(formData)
       : genreHttp.update(genre.id, formData);
       const {data} = await http;
       snackbar.enqueueSnackbar(
@@ -183,16 +185,13 @@ export const Form = () => {
         }
       </TextField>
 
-      <Box dir={"rtl"}>
-        <Button
-          color="primary" 
-          {...buttonProps} 
-          onClick={() => onSubmit(getValues(), null)}
-        >
-          Salvar
-        </Button>
-        <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
-      </Box>
+      <SubmitActions 
+            disabledButtons={loading}
+            handleSave={() => trigger().then( isValid => {
+                              isValid && onSubmit(getValues(), null)
+                            })
+                        }
+          />
     </DefaultForm>
   )
 }

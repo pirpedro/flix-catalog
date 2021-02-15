@@ -155,6 +155,7 @@ export const Form = () => {
   }, []);
 
   async function onSubmit(formData, event){
+    console.log(formData["title"])
     const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
     sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
     sendData['categories_id'] = formData['categories'].map(category => category.id);
@@ -382,7 +383,7 @@ export const Form = () => {
       <SubmitActions 
             disabledButtons={loading}
             handleSave={() => trigger().then( isValid => {
-                              isValid && onSubmit(getValues, null)
+                              isValid && onSubmit(getValues(), null)
                             })
                         }
           />

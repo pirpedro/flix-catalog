@@ -4,6 +4,7 @@ import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useHistory, useParams } from 'react-router-dom';
+import SubmitActions from '../../components/SubmitActions';
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from "../../util/vendor/yup";
 import { ParamTypes } from './PageForm';
@@ -34,7 +35,8 @@ export const Form = () => {
     errors,
     setValue,
     reset,
-    watch
+    watch,
+    trigger
   } = useForm({
     resolver: yupResolver(validationSchema)
   });
@@ -147,18 +149,13 @@ return (
         errors.type && <FormHelperText id="type-helper-text">{errors.type.message}</FormHelperText>
       }
     </FormControl>
-    <Box dir={"rtl"}>
-    <Box dir={"rtl"}>
-        <Button
-          color="primary" 
-          {...buttonProps} 
-          onClick={() => onSubmit(getValues(), null)}
-        >
-          Salvar
-        </Button>
-        <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
-      </Box>
-    </Box>
+    <SubmitActions 
+            disabledButtons={loading}
+            handleSave={() => trigger().then( isValid => {
+                              isValid && onSubmit(getValues(), null)
+                            })
+                        }
+          />
   </form>
 )
 }

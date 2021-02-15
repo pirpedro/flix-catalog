@@ -6,10 +6,7 @@ import {Link} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { useSnackbar } from 'notistack';
 import useFilter from '../../hooks/useFilter';
-import categoryHttp from '../../util/http/category-http';
-import * as yup from '../../util/vendor/yup';
-import { Category, Genre, ListResponse, Video } from '../../util/models';
-import { BadgeNo, BadgeYes } from '../../components/Badge';
+import { ListResponse, Video } from '../../util/models';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import videoHttp from '../../util/http/video-http';
 
@@ -79,7 +76,7 @@ const columnsDefinition: TableColumn[] = [
           <IconButton
             color={'secondary'}
             component={Link}
-            to={`/genres/${tableMeta.rowData[0]}/edit`}
+            to={`/videos/${tableMeta.rowData[0]}/edit`}
           >
             <EditIcon/>
           </IconButton>
@@ -185,12 +182,6 @@ const Table = () => {
           rowsPerPage: filterState.pagination.per_page,
           rowsPerPageOptions,
           count: totalRecords,
-          onFilterChange: (column, filterList, type) => {
-            const columnIndex = columns.findIndex(c => c.name === column);
-            filterManager.changeExtraFilter({
-              [column as string] : filterList[columnIndex].length ? filterList[columnIndex]: null
-            })
-          },
           customToolbar: () => (
             <FilterResetButton 
               handleClick={()=> {

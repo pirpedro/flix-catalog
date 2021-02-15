@@ -144,7 +144,7 @@ export const Form = () => {
           <SubmitActions 
             disabledButtons={loading}
             handleSave={() => trigger().then( isValid => {
-                              isValid && onSubmit(getValues, null)
+                              isValid && onSubmit(getValues(), null)
                             })
                         }
           />

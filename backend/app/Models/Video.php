@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\ModelFilters\VideoFilter;
 use App\Models\Traits\Uuid;
 use App\Models\Traits\UploadFiles;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Video extends Model
 {
-    use SoftDeletes, Uuid, UploadFiles;
+    use SoftDeletes, Uuid, UploadFiles, Filterable;
 
     const NO_RATING = 'L';
     const RATING_LIST = [self::NO_RATING, '10', '12', '14', '16', '18'];
@@ -128,5 +130,9 @@ class Video extends Model
 
     public function getVideoFileUrlAttribute(){
         return $this->video_file ? $this->getFileUrl($this->video_file) : null;
+    }
+
+    public function modelFilter(){
+        return $this->provideFilter(VideoFilter::class);
     }
 }
