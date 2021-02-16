@@ -18,6 +18,9 @@ import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
+import { useSelector, useDispatch } from "react-redux";
+import { State as UploadState, Upload } from '../../../store/upload/types';
+import { Creators } from '../../../store/upload';
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -115,6 +118,49 @@ export const Form = () => {
   const uploadsRef = React.useRef(
     zipObject(fileFields, fileFields.map(()=> React.createRef()))
   ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent>}>;
+
+ const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+
+ const dispatch = useDispatch();
+
+ React.useMemo(()=> {
+  setTimeout(()=>{
+    const obj: any = {
+      video: {
+        id: '1',
+        title: 'e o vento levou'
+      },
+      files: [
+        {
+          file: new File([""], "teste.mp4"),
+          fileField: "trailer_file"
+        },
+        {
+          file: new File([""], "teste.mp4"),
+          fileField: "video_file"
+        }
+      ]
+    }
+  
+     dispatch(Creators.addUpload(obj));
+     const progress1 = {
+      fileField: "trailer_file",
+      progress: 10,
+      video: {id: '1'} 
+     } as any;
+  
+     const progress2 = {
+      fileField: "video_file",
+      progress: 20,
+      video: {id: '1'} 
+     } as any;
+     dispatch(Creators.updateProgress(progress1));
+     dispatch(Creators.updateProgress(progress2));
+   },1000);
+ }, [true]);
+ 
+
+ console.log("uploads:",uploads)
 
  React.useEffect(() => {
     [
