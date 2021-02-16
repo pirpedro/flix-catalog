@@ -1,7 +1,6 @@
 // @flow 
 import * as React from 'react';
 import LoadingContext from './LoadingContext';
-import axios from "axios";
 import { addGlobalRequestInterceptor, addGlobalResponseInterceptor, removeGlobalRequestInterceptor, removeGlobalResponseInterceptor } from '../../util/http';
 
 const LoadingProvider = (props) => {
