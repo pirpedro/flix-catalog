@@ -2,6 +2,7 @@
 import * as React from 'react';
 import LoadingContext from './LoadingContext';
 import { addGlobalRequestInterceptor, addGlobalResponseInterceptor, removeGlobalRequestInterceptor, removeGlobalResponseInterceptor } from '../../util/http';
+import { omit } from 'lodash';
 
 const LoadingProvider = (props) => {
   const [loading, setLoading] = React.useState<boolean>(false);
@@ -10,10 +11,11 @@ const LoadingProvider = (props) => {
   React.useMemo(() => {
     let isSubscribed = true;
     const requestIds = addGlobalRequestInterceptor((config) => {
-        if(isSubscribed){
+        if(isSubscribed && !config.headers.hasOwnProperty('ignoreLoading')){
           setLoading(true);
           setCountRequest((prevCountRequest) => prevCountRequest + 1);
         }
+        config.headers = omit(config.headers, 'ignoreLoading');
         return config;
     });
     const responseIds = addGlobalResponseInterceptor(

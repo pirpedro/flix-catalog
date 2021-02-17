@@ -19,7 +19,7 @@ import { omit, zipObject } from 'lodash';
 import { InputFileComponent } from '../../../components/InputFile';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 import { useSelector, useDispatch } from "react-redux";
-import { State as UploadState, Upload } from '../../../store/upload/types';
+import { UploadState as UploadState, Upload, UploadModule } from '../../../store/upload/types';
 import { Creators } from '../../../store/upload';
 
 
@@ -119,7 +119,7 @@ export const Form = () => {
     zipObject(fileFields, fileFields.map(()=> React.createRef()))
   ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent>}>;
 
- const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+ const uploads = useSelector<UploadModule, Upload[]>((state) => state.upload.uploads);
 
  const dispatch = useDispatch();
 
@@ -127,7 +127,7 @@ export const Form = () => {
   setTimeout(()=>{
     const obj: any = {
       video: {
-        id: '1',
+        id: '6fa4bd6b-e0f6-41ed-8302-02552b5e34e0',
         title: 'e o vento levou'
       },
       files: [
@@ -146,13 +146,13 @@ export const Form = () => {
      const progress1 = {
       fileField: "trailer_file",
       progress: 10,
-      video: {id: '1'} 
+      video: {id: '6fa4bd6b-e0f6-41ed-8302-02552b5e34e0'} 
      } as any;
   
      const progress2 = {
       fileField: "video_file",
       progress: 20,
-      video: {id: '1'} 
+      video: {id: '6fa4bd6b-e0f6-41ed-8302-02552b5e34e0'} 
      } as any;
      dispatch(Creators.updateProgress(progress1));
      dispatch(Creators.updateProgress(progress2));
@@ -206,7 +206,6 @@ export const Form = () => {
   }, []);
 
   async function onSubmit(formData, event){
-    console.log(formData["title"])
     const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
     sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
     sendData['categories_id'] = formData['categories'].map(category => category.id);

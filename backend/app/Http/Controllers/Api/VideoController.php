@@ -43,7 +43,10 @@ class VideoController extends BasicCrudController
     public function update(Request $request, $id){
         $obj = $this->findOrFail($id);
         $this->addRuleIfGenreHasCategories($request);
-        $validatedData = $this->validate($request, $this->rulesUpdate());
+        $validatedData = $this->validate(
+            $request,
+            $request->isMethod('PUT') ? $this->rulesUpdate(): $this->rulesPatch()
+        );
         $obj->update($validatedData);
         $resource = $this->resource();
         return new $resource($obj);
@@ -53,6 +56,20 @@ class VideoController extends BasicCrudController
         $categoriesId = $request->get('category_id');
         $categoriesId = is_array($categoriesId) ? $categoriesId : [];
         $this->rules['genre_id'][] = new GenresHasCategoriesRule($categoriesId);
+    }
+
+    protected function rulesPatch(){
+        return array_map(function($rules){
+            if(is_array($rules)){
+                $exists = in_array("required", $rules);
+                if($exists){
+                    array_unshift($rules, "sometimes");
+                }
+            }else{
+                return str_replace("required", "sometimes|required", $rules);
+            }
+            return $rules;
+        }, $this->rulesUpdate());
     }
 
     protected function model(){
