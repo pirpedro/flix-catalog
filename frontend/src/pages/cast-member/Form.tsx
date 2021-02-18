@@ -1,22 +1,15 @@
 import { yupResolver } from '@hookform/resolvers';
-import { Box, Button, ButtonProps, FormControl, FormControlLabel, FormHelperText, FormLabel, makeStyles, Radio, RadioGroup, TextField, Theme } from '@material-ui/core';
+import { FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup, TextField } from '@material-ui/core';
 import { useSnackbar } from 'notistack';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useHistory, useParams } from 'react-router-dom';
+import LoadingContext from '../../components/Loading/LoadingContext';
 import SubmitActions from '../../components/SubmitActions';
 import useSnackbarFormError from '../../hooks/useSnackbarFormError';
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from "../../util/vendor/yup";
 import { ParamTypes } from './PageForm';
-
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    submit: {
-      margin: theme.spacing(1),
-    }
-  }
-});
 
 const validationSchema = yup.object().shape({
   name: yup.string()
@@ -45,50 +38,38 @@ export const Form = () => {
   
   useSnackbarFormError(formState.submitCount, errors);
   
-  const classes = useStyles();
-  const snackbar = useSnackbar();
+  const {enqueueSnackbar} = useSnackbar();
   const history = useHistory();
   const {id} = useParams<ParamTypes>();
   const [castMember, setCastMember] = React.useState<{id:string} | null>(null);
-  const [loading, setLoading] = React.useState<boolean>(false);
-
-  const buttonProps: ButtonProps = {
-    className: classes.submit,
-    color: 'secondary',
-    variant: "contained",
-    disabled: loading
-  }
+  const loading = React.useContext(LoadingContext);
 
   React.useEffect(() => {
     if(!id){ return; }
 
     async function getCastMember(){
-      setLoading(true);
       try {
         const {data} = await castMemberHttp.get(id);
         setCastMember(data.data);
         reset(data.data);
       } catch (error) {
         console.log(error);
-        snackbar.enqueueSnackbar(
+        enqueueSnackbar(
           'Não foi possível carregar as informações.',
           {variant: 'error'}
         );
-      } finally {
-        setLoading(false);
       }
     }
     getCastMember();
-  }, []);
+  }, [id, reset, enqueueSnackbar]);
 
   async function onSubmit(formData, event){
-    setLoading(true);
     try {
       const http = !castMember
       ? castMemberHttp.create(formData)
       : castMemberHttp.update(castMember.id, formData);
       const {data} = await http;
-      snackbar.enqueueSnackbar(
+      enqueueSnackbar(
         'Membro salvo com sucesso.',
         {variant: "success"}
       );
@@ -103,14 +84,11 @@ export const Form = () => {
       }); 
     } catch (error) {
       console.log(error);
-          snackbar.enqueueSnackbar(
+          enqueueSnackbar(
             'Não foi possível salvar o membro.',
             {variant: "error"}
           );
-    }finally {
-      setLoading(false);
     }
-   
   } 
 
 

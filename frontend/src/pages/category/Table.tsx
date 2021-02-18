@@ -1,4 +1,4 @@
-import React,{useState, useEffect, useRef, useReducer, useContext} from 'react';
+import React,{useState, useEffect, useRef, useContext} from 'react';
 import { format, parseISO } from "date-fns";
 import categoryHttp from '../../util/http/category-http';
 import { BadgeNo, BadgeYes } from '../../components/Badge';
@@ -93,9 +93,9 @@ const Table = () => {
   const {
     columns,
     filterManager,
+    cleanSearchText,
     filterState,
     debouncedFilterState,
-    dispatch,
     totalRecords,
     setTotalRecords
   } = useFilter({
@@ -108,13 +108,12 @@ const Table = () => {
 
   useEffect(() => {
     subscribed.current = true;
-    filterManager.pushHistory();
     getData();
     return () => {
       subscribed.current = false;
     }
   }, [
-    filterManager.cleanSearchText(debouncedFilterState.search),
+    cleanSearchText(debouncedFilterState.search),
     debouncedFilterState.pagination.page,
     debouncedFilterState.pagination.per_page,
     debouncedFilterState.order
@@ -124,7 +123,7 @@ const Table = () => {
       try {
         const {data} = await categoryHttp.list<ListResponse<Category>>({
           queryParams: {
-            search: filterManager.cleanSearchText(filterState.search),
+            search: cleanSearchText(debouncedFilterState.search),
             page: filterState.pagination.page,
             per_page: filterState.pagination.per_page,
             sort: filterState.order.sort,

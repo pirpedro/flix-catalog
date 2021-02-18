@@ -79,7 +79,6 @@ export default class HttpResource{
   }
 
   private getFormData(data){
-    const formData = new FormData();
     // Object
     //     .keys(data)
     //     .forEach(key => {

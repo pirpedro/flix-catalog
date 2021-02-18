@@ -1,4 +1,4 @@
-import { Box, Button, ButtonProps, makeStyles, MenuItem, TextField, Theme } from '@material-ui/core';
+import { MenuItem, TextField } from '@material-ui/core';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import categoryHttp from '../../util/http/category-http';
@@ -11,14 +11,7 @@ import { useSnackbar } from 'notistack';
 import { DefaultForm } from '../../components/DefaultForm';
 import SubmitActions from '../../components/SubmitActions';
 import useSnackbarFormError from '../../hooks/useSnackbarFormError';
-
-const useStyles = makeStyles((theme: Theme) => {
-  return {
-    submit: {
-      margin: theme.spacing(1),
-    }
-  }
-});
+import LoadingContext from '../../components/Loading/LoadingContext';
 
 const validationSchema = yup.object().shape({
   name: yup.string()
@@ -48,26 +41,18 @@ export const Form = () => {
 
   useSnackbarFormError(formState.submitCount, errors);
   
-  const classes = useStyles();
-  const snackbar = useSnackbar();
+  // const classes = useStyles();
+  const {enqueueSnackbar} = useSnackbar();
   const history = useHistory();
   const {id} = useParams<ParamTypes>();
   const [categories, setCategories] = React.useState<any[]>([])
   const [genre, setGenre] = React.useState<{id:string} | null>(null);
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const category = getValues()['categories_id'];
-
-  const buttonProps: ButtonProps = {
-    className: classes.submit,
-    color: 'secondary',
-    variant: "contained",
-    disabled: loading
-  }
+  const loading = React.useContext(LoadingContext);
+  // const category = getValues()['categories_id'];
 
   React.useEffect(() => {
     let isSubscribed = true;
     ( async () => {
-      setLoading(true);
       const promises = [categoryHttp.list({queryParams:{all: ''}})];
       if (id) {
         promises.push(genreHttp.get(id));
@@ -87,12 +72,10 @@ export const Form = () => {
         
       } catch (error) {
         console.log(error);
-        snackbar.enqueueSnackbar(
+        enqueueSnackbar(
           'Não foi possível carregar as informações',
           {variant: "error"}
         );
-      } finally {
-        setLoading(false);
       }
 
     })();
@@ -100,7 +83,7 @@ export const Form = () => {
       isSubscribed = false;
     }
   
-  }, []);
+  }, [id, reset, enqueueSnackbar]);
   
   React.useEffect(() => {
     register({name: "categories_id"});
@@ -113,13 +96,12 @@ export const Form = () => {
   // }, [register]);
 
   async function onSubmit(formData, event){
-    setLoading(true);
     try {
       const http = !genre
       ? genreHttp.create(formData)
       : genreHttp.update(genre.id, formData);
       const {data} = await http;
-      snackbar.enqueueSnackbar(
+      enqueueSnackbar(
         'Gênero salvo com sucesso.',
         {variant: "success"}
       );
@@ -134,14 +116,11 @@ export const Form = () => {
       }); 
     } catch (error) {
       console.log(error);
-          snackbar.enqueueSnackbar(
+          enqueueSnackbar(
             'Não foi possível salvar o gênero.',
             {variant: "error"}
           );
-    }finally {
-      setLoading(false);
     }
-   
   } 
 
   return (

@@ -1,5 +1,5 @@
 // @flow 
-import MUIDataTable,{ DebounceTableSearch, MUIDataTableColumn, MUIDataTableOptions, MUIDataTableProps } from 'mui-datatables';
+import MUIDataTable,{ MUIDataTableColumn, MUIDataTableOptions, MUIDataTableProps } from 'mui-datatables';
 import * as React from 'react';
 import {merge, omit, cloneDeep} from 'lodash';
 import { MuiThemeProvider, Theme, useMediaQuery, useTheme } from '@material-ui/core';

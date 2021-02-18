@@ -1,5 +1,5 @@
 // @flow 
-import { FormControl, FormControlProps, FormHelperText, Typography } from '@material-ui/core';
+import { FormControl, FormControlProps, FormHelperText, Typography, useTheme } from '@material-ui/core';
 import * as React from 'react';
 import AsyncAutocomplete, { AsyncAutoCompleteComponent } from '../../../components/AsyncAutocomplete';
 import { GridSelected } from '../../../components/GridSelected';
@@ -36,8 +36,9 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
   const {addItem, removeItem} = useCollectionManager(genres, setGenres);
   const {removeItem: removeCategory} = useCollectionManager(categories, setCategories);
   const autocompleteRef = React.useRef() as React.MutableRefObject<AsyncAutoCompleteComponent>
+  const theme = useTheme();
   
-  function fetchOptions(searchText){
+  const fetchOptions = React.useCallback((searchText) => {
     return autocompleteHttp( 
       genreHttp.list({
         queryParams: {
@@ -45,7 +46,7 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
         }
       })
     ).then(data => data.data);
-  }
+  }, [autocompleteHttp]);
   
   React.useImperativeHandle(ref, () => ({
     clear: () => autocompleteRef.current.clear()
@@ -70,6 +71,9 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
           disabled,
         }}
       />
+      <FormHelperText style={{height: theme.spacing(3)}}>
+        Escolha os gêneros do vídeo
+      </FormHelperText>
       <FormControl
         margin={"normal"}
         fullWidth
@@ -86,7 +90,7 @@ const GenreField = React.forwardRef<GenreFieldComponent, GenreFieldProps> ((prop
                   const categoriesWithOneGenre = categories
                                       .filter(category => {
                                         const genresFromCategory = getGenresFromCategory(genres, category);
-                                        return genresFromCategory.length === 1 && genres[0].id == genre.id
+                                        return genresFromCategory.length === 1 && genres[0].id === genre.id
                                       });
                   categoriesWithOneGenre.forEach(cat => removeCategory(cat));
                   removeItem(genre)

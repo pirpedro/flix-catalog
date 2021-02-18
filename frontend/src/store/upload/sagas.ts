@@ -1,7 +1,7 @@
 import { Creators, Types } from ".";
 import {eventChannel, END} from 'redux-saga'
 import {actionChannel, take, call, put} from 'redux-saga/effects'
-import { AddUploadAction, FileInfo, FileUpload } from "./types";
+import { AddUploadAction, FileInfo } from "./types";
 import { Video } from "../../util/models";
 import videoHttp from "../../util/http/video-http";
 
@@ -11,7 +11,7 @@ export function* uploadWatcherSaga(){
     const {payload}: AddUploadAction = yield take(newFilesChannel);
     for(const fileInfo of payload.files){
       try{
-        const response = yield call(uploadFile, {video: payload.video, fileInfo });
+        yield call(uploadFile, {video: payload.video, fileInfo });
       }catch(e){
 
       }
@@ -59,7 +59,7 @@ function sendUpload({id,fileInfo}: {id: string, fileInfo: FileInfo}){
         },
         config: {
           headers: {
-            ignoreLoading: true
+            'x-ignore-loading': true
           },
           onUploadProgress(progressEvent: ProgressEvent){
             if(progressEvent.lengthComputable){

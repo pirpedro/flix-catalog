@@ -1,4 +1,4 @@
-import React,{useState, useEffect, useRef} from 'react';
+import React,{useState, useEffect, useRef, useContext} from 'react';
 import { format, parseISO } from "date-fns";
 import DefaultTable, { makeActionStyles, MuiDataTableRefComponent, TableColumn } from '../../components/Table';
 import { IconButton, MuiThemeProvider } from '@material-ui/core';
@@ -11,6 +11,7 @@ import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import videoHttp from '../../util/http/video-http';
 import { DeleteDialog } from '../../components/DeleteDialog';
 import useDeleteCollection from '../../hooks/useDeleteCollection';
+import LoadingContext from '../../components/Loading/LoadingContext';
 
 const columnsDefinition: TableColumn[] = [
   {
@@ -99,12 +100,13 @@ const Table = () => {
   const snackbar = useSnackbar();
   const subscribed = useRef(true);
   const [data, setData] = useState<Video[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const loading = useContext(LoadingContext);
   const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection()
   const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
   const {
     columns,
     filterManager,
+    cleanSearchText,
     filterState,
     debouncedFilterState,
     dispatch,
@@ -120,24 +122,22 @@ const Table = () => {
 
   useEffect(() => {
     subscribed.current = true;
-    filterManager.pushHistory();
     getData();
     return () => {
       subscribed.current = false;
     }
   },[
-    filterManager.cleanSearchText(debouncedFilterState.search),
+    cleanSearchText(debouncedFilterState.search),
     debouncedFilterState.pagination.page,
     debouncedFilterState.pagination.per_page,
     debouncedFilterState.order
   ]);
 
   async function getData(){
-    setLoading(true);
     try {
       const {data} = await videoHttp.list<ListResponse<Video>>({
         queryParams: {
-          search: filterManager.cleanSearchText(filterState.search),
+          search: cleanSearchText(debouncedFilterState.search),
           page: filterState.pagination.page,
           per_page: filterState.pagination.per_page,
           sort: filterState.order.sort,
@@ -167,8 +167,6 @@ const Table = () => {
         'Não foi possível carregar as informações',
         {variant: 'error'}
       )
-    } finally {
-      setLoading(false)
     }
   }
 

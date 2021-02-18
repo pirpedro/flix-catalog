@@ -26,7 +26,7 @@ const SubmitActions : React.FC<SubmitActionsProps> = (props) => {
 
 
   return (
-    <Box dir={"rtl"}>
+    <Box dir={"ltf"}>
         <Button
           color="primary" 
           {...buttonProps} 
