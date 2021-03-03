@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\KeycloakGuard;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -29,6 +30,8 @@ class AuthServiceProvider extends ServiceProvider
             return new KeycloakGuard($app['tymon.jwt'], $app['request']);
         });
 
-        //
+        \Gate::define('catalog-admin', function(User $user){
+            return $user->hasRole('catalog-admin');
+        })
     }
 }
