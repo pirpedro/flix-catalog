@@ -10,6 +10,7 @@ import { Location } from "history";
 import routes from '../routes';
 import RouteParser from "route-parser";
 import { Box, Container } from '@material-ui/core';
+import { useKeycloak } from '@react-keycloak/web';
 
 const breadcrumbNameMap: { [key: string]: string } = {
  
@@ -39,6 +40,7 @@ const LinkRouter = (props: LinkRouterProps) => <Link {...props} component={Route
 
 export default function Breadcrumbs() {
   const classes = useStyles();
+  const {keycloak} = useKeycloak();
 
   function makeBreadcrumb(location: Location){
     const pathnames = location.pathname.split('/').filter((x) => x);
@@ -69,7 +71,7 @@ export default function Breadcrumbs() {
   }
  
   return (
-      <Container>
+      keycloak.authenticated ? <Container>
         <Box paddingTop={2} paddingBottom={1}>
           <Route>
             {
@@ -78,7 +80,7 @@ export default function Breadcrumbs() {
           </Route>
         </Box>
        
-      </Container>
+      </Container> : null
 
   );
 }

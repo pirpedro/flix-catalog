@@ -11,6 +11,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import useFilter from '../../hooks/useFilter';
 import LoadingContext from '../../components/Loading/LoadingContext';
+import { useKeycloak } from '@react-keycloak/web';
 
 const columnsDefinition: TableColumn[] = [
   {
@@ -84,7 +85,7 @@ const rowsPerPage = 15;
 const rowsPerPageOptions = [15,25,50];
 
 const Table = () => {
-  
+  const keyCloak = useKeycloak();
   const snackbar = useSnackbar();
   const subscribed = useRef(true);
   const [data, setData] = useState<Category[]>([]);
