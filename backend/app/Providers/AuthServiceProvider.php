@@ -32,6 +32,6 @@ class AuthServiceProvider extends ServiceProvider
 
         \Gate::define('catalog-admin', function(User $user){
             return $user->hasRole('catalog-admin');
-        })
+        });
     }
 }

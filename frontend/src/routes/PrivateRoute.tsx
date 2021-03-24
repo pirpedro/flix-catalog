@@ -2,6 +2,8 @@
 import { useKeycloak } from '@react-keycloak/web';
 import * as React from 'react';
 import { Redirect, Route, RouteComponentProps, RouteProps } from 'react-router-dom';
+import { useHasRealmRole } from '../hooks/useHasRole';
+import NotAuthorized from '../pages/NotAuthorized';
 
 interface PrivateProps extends RouteProps {
   component: 
@@ -12,9 +14,10 @@ interface PrivateProps extends RouteProps {
 const PrivateRoute = (props: PrivateProps) => {
   const {component: Component, ...rest} = props;
   const {keycloak} = useKeycloak();
+  const hasCatalogAdmin = useHasRealmRole('catalog-admin');
   const render = React.useCallback((props) => {
     if(keycloak.authenticated){
-      return <Component {...props} />;
+      return hasCatalogAdmin ? <Component {...props} /> : <NotAuthorized/>;
     }
   
     return (
@@ -25,7 +28,7 @@ const PrivateRoute = (props: PrivateProps) => {
         }}
       />
     );
-  }, []);
+  }, [hasCatalogAdmin]);
   return <Route {...rest} render={render}/>
 };
 
